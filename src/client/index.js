@@ -1,4 +1,11 @@
 import React from 'react'
 import { render } from 'react-dom'
+import ApolloClient from 'apollo-client'
+import { ApolloProvider } from 'react-apollo'
 
-render(<h1>hello</h1>, document.querySelector('#app'))
+const client = new ApolloClient
+
+render(
+  <Provider client={client}>
+
+  </Provider>, document.querySelector('#app'))
