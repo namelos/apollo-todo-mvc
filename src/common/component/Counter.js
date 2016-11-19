@@ -3,13 +3,21 @@ import { graphql } from 'react-apollo'
 import gql from 'graphql-tag'
 import { compose } from 'redux'
 
-const App = ({ data, addTodo, ...props }) => <div>
-  <p>Todos:</p>
-  <Todos todos={data.todos} {...props} />
-  <InputWithButton onClick={text => addTodo({ variables: {text} })}>
-    AddTodo
-  </InputWithButton>
-</div>
+const App = ({ data, addTodo, deleteTodo }) => {
+  const refetch = mutation => param => mutation(param)
+    .then(data.refetch)
+
+  addTodo = refetch(addTodo)
+  deleteTodo = refetch(deleteTodo)
+
+  return <div>
+    <p>Todos:</p>
+    <Todos todos={data.todos} deleteTodo={deleteTodo} />
+    <InputWithButton onClick={text => addTodo({ variables: {text} })}>
+      AddTodo
+    </InputWithButton>
+  </div>
+}
 
 const InputWithButton = ({ onClick, children }) => {
   let text
@@ -30,7 +38,7 @@ const Todo = ({ id, text, deleteTodo }) => <div>
   <button onClick={_ => deleteTodo({ variables: {id} })}>x</button>
 </div>
 
-const query = gql`
+const todos = gql`
   query {
     todos {
       id
@@ -41,23 +49,18 @@ const query = gql`
 
 const addTodo = gql`
   mutation addTodo($text: String) {
-    addTodo(text: $text) {
-      id
-      text
-    }
+    addTodo(text: $text)
   }
 `
 
 const deleteTodo = gql`
   mutation deleteTodo($id: Int) {
-    deleteTodo(id: $id) {
-      text
-    }
+    deleteTodo(id: $id)
   }
 `
 
 export default compose(
-  graphql(query),
+  graphql(todos),
   graphql(addTodo, { name: 'addTodo' }),
   graphql(deleteTodo, { name: 'deleteTodo' })
 )(App)

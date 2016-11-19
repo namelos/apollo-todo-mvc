@@ -2,18 +2,24 @@ import { makeExecutableSchema } from 'graphql-tools'
 import { graphqlExpress, graphiqlExpress } from 'graphql-server-express'
 
 const typeDefs = `
+  # the Todo type with an id and a text 
   type Todo {
-    id: Int
+    id: Int                     
     text: String
   }
   type Query {
-    todo(id: Int): Todo
-    todos: [Todo]
+    # Find a Todo with id
+    todo(id: Int): Todo         
+    # Find All todos
+    todos: [Todo]               
   }
   type Mutation {
-    addTodo(text: String): Todo
-    deleteTodo(id: Int): Todo
+    # Add a new Todo with a content text
+    addTodo(text: String): Boolean
+    # Delete a todo with id
+    deleteTodo(id: Int): Boolean
   } 
+  # A Todo app with GraphQL and Apollo 
   schema {
     query: Query
     mutation: Mutation
@@ -34,8 +40,8 @@ const resolvers = (() => {
       todos:              _ => todos
     },
     Mutation: {
-      addTodo:  (_, {text}) => todos.push({id: genId(), text}),
-      deleteTodo: (_, {id}) => todos = todos.filter(todo => todo.id !== id)
+      addTodo:  (_, {text}) => (todos.push({id: genId(), text}), true),
+      deleteTodo: (_, {id}) => (todos = todos.filter(todo => todo.id !== id), true)
     }
   }
 })()
